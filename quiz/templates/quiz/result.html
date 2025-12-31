@@ -1,0 +1,25 @@
+{% extends 'quiz/base.html' %}
+
+{% block content %}
+<div class="max-w-md mx-auto bg-white rounded-lg shadow-md overflow-hidden mt-10">
+    <div class="py-8 px-6 text-center">
+        <h2 class="text-3xl font-bold text-gray-800 mb-4">Quiz Results</h2>
+        <div class="text-6xl font-extrabold text-indigo-600 mb-4">
+            {{ score }} <span class="text-2xl text-gray-400 font-normal">/ {{ total }}</span>
+        </div>
+        <p class="text-gray-600 text-lg mb-8">
+            {% if score == total %}
+            🎉 Perfect Score! Excellent work!
+            {% elif score > total|divisibleby:2 %}
+            👍 Good job! Keep learning.
+            {% else %}
+            📚 Keep practicing! You can do better.
+            {% endif %}
+        </p>
+        <a href="{% url 'quiz_view' %}"
+            class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded transition duration-300">
+            Take Quiz Again
+        </a>
+    </div>
+</div>
+{% endblock %}

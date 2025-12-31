@@ -1,0 +1,35 @@
+{% extends 'quiz/base.html' %}
+
+{% block content %}
+<div class="max-w-md mx-auto bg-white rounded-lg shadow-md overflow-hidden">
+    <div class="py-4 px-6">
+        <h2 class="text-2xl font-bold text-gray-800 mb-2">Register</h2>
+        <form method="POST" class="space-y-4">
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="flex flex-col">
+                <label class="font-semibold text-gray-600 text-sm mb-1">{{ field.label }}</label>
+                {{ field }}
+                {% if field.help_text %}
+                <p class="text-xs text-gray-500 mt-1">{{ field.help_text }}</p>
+                {% endif %}
+                {% if field.errors %}
+                <ul class="text-red-500 text-xs mt-1">
+                    {% for error in field.errors %}
+                    <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </div>
+            {% endfor %}
+            <button type="submit"
+                class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded transition duration-300">
+                Register
+            </button>
+        </form>
+        <p class="mt-4 text-sm text-center text-gray-600">
+            Already have an account? <a href="{% url 'login' %}" class="text-indigo-600 hover:underline">Login here</a>
+        </p>
+    </div>
+</div>
+{% endblock %}
