@@ -1,12 +1,13 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate, logout
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import Question
+from .models import Question, Choice
+from .forms import QuizUserCreationForm, QuizAuthenticationForm
 
 def register(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = QuizUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
             login(request, user)
@@ -14,25 +15,24 @@ def register(request):
             return redirect('quiz_view')
         messages.error(request, "Unsuccessful registration. Invalid information.")
     else:
-        form = UserCreationForm()
+        form = QuizUserCreationForm()
     return render(request, 'quiz/register.html', {'form': form})
 
-def login_user(request,):
+def login_user(request):
     if request.method == 'POST':
-        form = AuthenticationForm(request, data=request.POST)
+        form = QuizAuthenticationForm(request, data=request.POST)
         if form.is_valid():
             username = form.cleaned_data.get('username')
             password = form.cleaned_data.get('password')
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
-                messages.info(request, f"You are now logged in as {username}.")
                 return redirect('quiz_view')
             else:
                 messages.error(request, "Invalid username or password.")
         else:
             messages.error(request, "Invalid username or password.")
-    form = AuthenticationForm()
+    form = QuizAuthenticationForm()
     return render(request, 'quiz/login.html', {'form': form})
 
 def logout_user(request):
@@ -40,12 +40,12 @@ def logout_user(request):
     messages.info(request, "You have successfully logged out.")
     return redirect('login')
 
+@login_required(login_url='login')
 def quiz_view(request):
-    if not request.user.is_authenticated:
-        return redirect('login')
     questions = Question.objects.all()
     return render(request, 'quiz/quiz.html', {'questions': questions})
 
+@login_required(login_url='login')
 def submit_quiz(request):
     if request.method == 'POST':
         score = 0
@@ -55,8 +55,11 @@ def submit_quiz(request):
             total += 1
             selected_choice_id = request.POST.get(str(q.id))
             if selected_choice_id:
-                choice = q.choices.get(id=selected_choice_id)
-                if choice.is_correct:
-                    score += 1
+                try:
+                    choice = q.choices.get(id=selected_choice_id)
+                    if choice.is_correct:
+                        score += 1
+                except Choice.DoesNotExist:
+                    pass
         return render(request, 'quiz/result.html', {'score': score, 'total': total})
     return redirect('quiz_view')
