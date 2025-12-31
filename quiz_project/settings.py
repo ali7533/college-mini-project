@@ -14,8 +14,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-dev-key-default-123')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# We use string comparison because env vars are always strings
-DEBUG = os.environ.get('DEBUG', 'False') == 'True'
+# SECURITY WARNING: don't run with debug turned on in production!
+# We set this to True momentarily to see the error message on Render.
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
