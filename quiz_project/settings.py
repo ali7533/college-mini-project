@@ -113,8 +113,9 @@ STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Enable WhiteNoise's Gzip compression of static assets.
-if not DEBUG:
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# Enable WhiteNoise's Gzip compression of static assets.
+# Using 'CompressedStaticFilesStorage' is safer (no hashing) to prevent 500 errors if files are missing.
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 
 # Default primary key field type
