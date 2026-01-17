@@ -1,5 +1,53 @@
 {% extends 'quiz/base.html' %}
 {% block content %}
+<div id="sticky-timer"
+    class="fixed bottom-4 right-4 bg-red-600 text-white px-4 py-2 rounded-lg shadow-lg font-bold text-xl z-50">
+    Time Left: <span id="time-display">--:--</span>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        let remainingTime = parseInt("{{ remaining_time|default:0|stringformat:'d' }}", 10);
+        const timerDisplay = document.getElementById('time-display');
+        const timerContainer = document.getElementById('sticky-timer'); // Get the container
+        const form = document.querySelector('form');
+
+        function updateTimer() {
+            // Ensure we don't go negative
+            if (remainingTime < 0) remainingTime = 0;
+
+            const minutes = Math.floor(remainingTime / 60);
+            const seconds = remainingTime % 60;
+
+            timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+            // Visual warning when less than 60 seconds
+            if (remainingTime < 60) {
+                timerContainer.classList.remove('bg-indigo-600'); // Remove default if applicable (though it's red in HTML)
+                timerContainer.classList.add('bg-red-600', 'animate-pulse');
+            } else {
+                // Reset if for some reason time was added (unlikely here but good practice)
+                timerContainer.classList.remove('animate-pulse');
+            }
+
+
+            if (remainingTime <= 0) {
+                // Determine if this is a manual submit or auto-submit
+                // But for simplicity, just submit the form
+                form.submit();
+                return;
+            }
+
+            remainingTime--;
+        }
+
+        // Initial call
+        updateTimer();
+
+        // Update every second
+        const timerInterval = setInterval(updateTimer, 1000);
+    });
+</script>
 <div class="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-md">
     <h2 class="text-3xl font-bold mb-6 border-b pb-4">Quiz Time!</h2>
     <form action="{% url 'submit_quiz' %}" method="POST">

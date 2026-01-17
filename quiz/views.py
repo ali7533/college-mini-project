@@ -43,7 +43,29 @@ def logout_user(request):
 @login_required(login_url='login')
 def quiz_view(request):
     questions = Question.objects.all()
-    return render(request, 'quiz/quiz.html', {'questions': questions})
+    
+    # helper for time calculation
+    import time
+    from .models import QuizSettings
+    
+    # Get dynamic duration or default to 5 minutes
+    settings = QuizSettings.objects.first()
+    if settings:
+        QUIZ_DURATION = settings.time_limit_minutes * 60
+    else:
+        QUIZ_DURATION = 300 # Default fallback
+    
+    if 'quiz_start_time' not in request.session:
+        request.session['quiz_start_time'] = time.time()
+        
+    start_time = request.session['quiz_start_time']
+    elapsed_time = time.time() - start_time
+    remaining_time = max(0, QUIZ_DURATION - elapsed_time)
+    
+    return render(request, 'quiz/quiz.html', {
+        'questions': questions,
+        'remaining_time': remaining_time
+    })
 
 @login_required(login_url='login')
 def submit_quiz(request):
@@ -61,5 +83,10 @@ def submit_quiz(request):
                         score += 1
                 except Choice.DoesNotExist:
                     pass
+        
+        # Clear the timer session variable
+        if 'quiz_start_time' in request.session:
+            del request.session['quiz_start_time']
+            
         return render(request, 'quiz/result.html', {'score': score, 'total': total})
     return redirect('quiz_view')
