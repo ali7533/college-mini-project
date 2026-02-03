@@ -1,34 +1,23 @@
 from django.contrib import admin
-from .models import Question, Choice, QuizSettings
+from .models import Question, Choice, Category
 
-# Register your models here.
-
-# Define an inline admin descriptor for Choice model
-# which acts a bit like a singleton
-class ChoiceInline(admin.TabularInline):
+class ChoiceInline(admin.StackedInline):
     model = Choice
     extra = 3
 
-# Define the admin class for Question model
 class QuestionAdmin(admin.ModelAdmin):
     fieldsets = [
-        (None,               {'fields': ['text']}),
+        (None, {'fields': ['text', 'category']}),
     ]
     inlines = [ChoiceInline]
-    
-    # helper to display choices in list view
-    list_display = ('text', 'pub_date')
-    list_filter = ['pub_date']
+    list_display = ('text', 'category', 'pub_date')
     search_fields = ['text']
-
-# Customize QuizSettings Admin to be more user friendly (maybe singleton style)
-class QuizSettingsAdmin(admin.ModelAdmin):
-    # If we want to prevent adding more than one
-    def has_add_permission(self, request):
-        # check if instance exists
-        if QuizSettings.objects.exists():
-            return False
-        return True
+    list_filter = ['category']
 
 admin.site.register(Question, QuestionAdmin)
-admin.site.register(QuizSettings, QuizSettingsAdmin)
+
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ('name', 'time_limit_minutes')
+
+admin.site.register(Category, CategoryAdmin)
+

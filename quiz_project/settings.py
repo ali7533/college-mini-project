@@ -73,7 +73,7 @@ WSGI_APPLICATION = 'quiz_project.wsgi.application'
 DATABASES = {
     'default': dj_database_url.config(
         default='mysql://uhak7nhtxdgxz7mc:HanKURbz4U1nFECynacP@bfyj4hoy5dsd0rlktcpw-mysql.services.clever-cloud.com:3306/bfyj4hoy5dsd0rlktcpw',
-        conn_max_age=600
+        conn_max_age=0
     )
 }
 
