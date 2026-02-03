@@ -50,6 +50,9 @@
     <h2 class="text-3xl font-bold mb-6 border-b pb-4">Quiz Time!</h2>
     <form action="{% url 'submit_quiz' %}" method="POST">
         {% csrf_token %}
+        {% if category %}
+        <input type="hidden" name="category_id" value="{{ category.id }}">
+        {% endif %}
         {% for question in questions %}
         <div class="mb-8">
             <h3 class="text-xl font-semibold mb-3">{{ forloop.counter }}. {{ question.text }}</h3>

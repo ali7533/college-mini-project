@@ -12,7 +12,7 @@ def register(request):
             user = form.save()
             login(request, user)
             messages.success(request, "Registration successful.")
-            return redirect('quiz_view')
+            return redirect('category_list')
         messages.error(request, "Unsuccessful registration. Invalid information.")
     else:
         form = QuizUserCreationForm()
@@ -27,7 +27,7 @@ def login_user(request):
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
-                return redirect('quiz_view')
+                return redirect('category_list')
             else:
                 messages.error(request, "Invalid username or password.")
         else:
@@ -86,7 +86,12 @@ def submit_quiz(request):
     if request.method == 'POST':
         score = 0
         total = 0
-        questions = Question.objects.all()
+        category_id = request.POST.get('category_id')
+        if category_id:
+            questions = Question.objects.filter(category_id=category_id)
+        else:
+            questions = Question.objects.all()
+            
         for q in questions:
             total += 1
             selected_choice_id = request.POST.get(str(q.id))

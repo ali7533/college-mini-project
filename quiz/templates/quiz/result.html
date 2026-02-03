@@ -5,7 +5,8 @@
     <div class="text-5xl font-extrabold text-indigo-600 mb-2">{{ score }}</div>
     <div class="text-gray-500 mb-8">out of {{ total }}</div>
 
-    <a href="{% url 'quiz_view' %}" class="inline-block bg-gray-800 text-white px-6 py-2 rounded hover:bg-gray-900">Try
+    <a href="{% url 'category_list' %}"
+        class="inline-block bg-gray-800 text-white px-6 py-2 rounded hover:bg-gray-900">Try
         Again</a>
 </div>
 {% endblock %}
