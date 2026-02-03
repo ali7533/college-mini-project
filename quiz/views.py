@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import Question, Choice
+from .models import Question, Choice, Category
 from .forms import QuizUserCreationForm, QuizAuthenticationForm
 
 def register(request):
@@ -41,9 +41,45 @@ def logout_user(request):
     return redirect('login')
 
 @login_required(login_url='login')
-def quiz_view(request):
-    questions = Question.objects.all()
-    return render(request, 'quiz/quiz.html', {'questions': questions})
+def category_list(request):
+    categories = Category.objects.all()
+    return render(request, 'quiz/category_selection.html', {'categories': categories})
+
+@login_required(login_url='login')
+def quiz_view(request, category_id=None):
+    if category_id:
+        questions = Question.objects.filter(category_id=category_id)
+        # We might want to pass category name or object to template
+        category = get_object_or_404(Category, id=category_id)
+    else:
+        questions = Question.objects.all()
+        category = None
+
+    # Timer Logic
+    import time
+    
+    # Priority: Category time limit -> Global Settings -> Default 5 mins
+    QUIZ_DURATION = 300 # Default fallback
+    
+    
+    if category and category.time_limit_minutes > 0:
+        QUIZ_DURATION = category.time_limit_minutes * 60
+    else:
+        # Default fallback if no category or category has no limit
+        QUIZ_DURATION = 300 # Default 5 mins
+
+    if 'quiz_start_time' not in request.session:
+        request.session['quiz_start_time'] = time.time()
+
+    start_time = request.session['quiz_start_time']
+    elapsed_time = time.time() - start_time
+    remaining_time = max(0, QUIZ_DURATION - elapsed_time)
+
+    return render(request, 'quiz/quiz.html', {
+        'questions': questions,
+        'remaining_time': remaining_time, 
+        'category': category
+    })
 
 @login_required(login_url='login')
 def submit_quiz(request):
@@ -61,5 +97,7 @@ def submit_quiz(request):
                         score += 1
                 except Choice.DoesNotExist:
                     pass
+        if 'quiz_start_time' in request.session:
+            del request.session['quiz_start_time']
         return render(request, 'quiz/result.html', {'score': score, 'total': total})
-    return redirect('quiz_view')
+    return redirect('category_list')

@@ -17,7 +17,7 @@
 <body class="bg-gray-50 text-gray-800">
     <nav class="bg-indigo-600 p-4 text-white shadow-lg">
         <div class="container mx-auto flex justify-between items-center">
-            <a href="{% url 'quiz_view' %}" class="font-bold text-xl">QuizApp</a>
+            <a href="{% url 'category_list' %}" class="font-bold text-xl">QuizApp</a>
             <div>
                 {% if user.is_authenticated %}
                 <span class="mr-4">Hi, {{ user.username }}</span>
